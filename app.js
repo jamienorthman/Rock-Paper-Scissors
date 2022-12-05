@@ -1,75 +1,86 @@
-const choices = ["Rock", "Paper", "Scissors"];
+const choices = ["rock", "paper", "scissors"];
+const winners = [];
 
 function getComputerChoice() {
     return choices[Math.floor(Math.random() * 3)];
 }
 
+function getPlayerChoice() {
+    let input = prompt("Enter Rock, Paper, or Scissors: "); 
+    while (input == null) {
+        input = prompt("Enter Rock, Paper, or Scissors: ");
+    }
+    input = input.toLowerCase();
+    let check = validateInput(input);
+    while (check == false) {
+        input = prompt("Please type ONLY one of the following: Rock, Paper, or Scissors");
+        while (input == null) {
+            input = prompt("Enter Rock, Paper, or Scissors: ");
+        }
+        input = input.toLowerCase();
+        check = validateInput(input);
+    }
+    return input;
+}
+
+function validateInput(choice) {
+    return choices.includes(choice)
+    //return choices.includes(choice);
+}
+
+// ps = player selection, cs = computer selection
 function checkWinner(playerSelection, computerSelection) {
     let ps = playerSelection;
     let cs = computerSelection;
     if (cs === ps) {
-        return "Draw";
+        return "Draw" //"It's a draw!";
     } else if (ps === 'rock'     && cs === 'paper' || 
     ps === 'scissors' && cs === 'rock' ||
     ps === 'paper'    && cs === 'scissors') {
-        return "Computer";
+        return "Computer" //`You lose! ${cs} beats ${ps}.`;
     } else {
-        return "Player";
+        return "Player" //`You win! ${ps} beats ${cs}.`;
     }
 }
 
-function playRound(playerSelection, computerSelection) {
-    const result = checkWinner(playerSelection, computerSelection);
-    let ps = playerSelection.toLowerCase();
-    let cs = computerSelection.toLowerCase();
-    if (result === "Draw") {
-        return "It's a draw!";
-    } else if (result === "Computer") {
-        return `You lose! ${cs} beats ${ps}.`;
-    } else {
-        return `You win! ${ps} beats ${cs}.`;
-    } 
+function logWins() {
+    let playerWins = winners.filter((item) => item == "Player").length;
+    let computerWins = winners.filter((item) => item == "Computer").length;
+    let draws = winners.filter((item) => item == "Draw").length;
+    console.log('Results:');
+    console.log('Player Wins:', playerWins);
+    console.log('Computer Wins:', computerWins);
+    console.log('Draws:', draws);
+    console.log('----------------------------------');
 }
 
-function getPlayerChoice() {
-    let validatedInput = false;
-    while (validatedInput === false) {
-        let playerChoice = prompt("Enter Rock, Paper, or Scissors: ");
-        if (playerChoice === null) {
-            continue;
-        }
-        const playerChoiceLower = playerChoice.toLowerCase();
-        if (choices.includes(playerChoiceLower)) {
-            validatedInput = true;
-            return playerChoiceLower;
-        }
-    }
+function logRound(playerChoice, computerChoice, winner, round) {
+    console.log('Round:', round);
+    console.log('Player chose:', playerChoice);
+    console.log('Computer chose:', computerChoice);
+    console.log(winner);
+    console.log('----------------------------------');
 }
 
+function playRound(round) {
+    const computerSelection = getComputerChoice();
+    const playerSelection = getPlayerChoice();
+    const winner = checkWinner(playerSelection, computerSelection);
+    winners.push(winner);
+    logRound(playerSelection, computerSelection, winner, round);
+}
+
+//Plays game
+//plays 5 rounds
+//console based
 function game() {
-    let scorePlayer = 0;
-    let scoreComputer = 0;
     for (let i = 1; i <= 5; i++) {
-        let playerChoice = getPlayerChoice();
-        let computerChoice = getComputerChoice();
-        console.log(`Round ${i}: ${playRound(playerChoice, computerChoice)}`);
-        console.log("---------------");
-        if (checkWinner(playerSelection, computerSelection) === "Player") {
-            scorePlayer++;
-        } else if (checkWinner(playerSelection, computerSelection) === "Computer") {
-            scoreComputer++;
-        }
-    }  
-    console.log("GAME OVER");
-    if (scorePlayer > scoreComputer) {
-        console.log("Player WINS!");
-    } else if (scorePlayer < scoreComputer) {
-        console.log("Computer WINS!");
-    } else {
-        console.log("Tie GAME!");
-    }
+        playRound(i);
+    } 
+    document.querySelector('button').textContent = 'Play new game';
+    logWins();
 }
 
-// game();
-
-// then give points
+document.querySelector('button').addEventListener("click", (event) => {
+    game();
+});
